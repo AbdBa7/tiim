@@ -1,0 +1,41 @@
+
+
+<div layout="row" layout-xs="column">
+  <div class="mt-3" fxFlex="95" fxLayoutAlign="left" ><h3>About</h3></div>
+
+  <div fxFlex="5" fxLayoutAlign="center" >
+      <div class="example-button">
+          <button mat-mini-fab color="primary" mat-button class="menu-button mb-3 mt-1" (click)="closeAbout()">
+              <mat-icon>close</mat-icon>
+          </button>
+      </div>
+  </div>
+</div>
+
+<mat-divider></mat-divider>
+<p>Dashbord</p>
+
+<div class="mt-3" layout="row" layout-xs="row" fxLayoutAlign="center" >
+  <mat-dialog-content>
+      <plotly-plot
+        [data]="graph0.data"
+        [layout]="graph0.layout"
+        [useResizeHandler]="true">
+      </plotly-plot>
+
+      <plotly-plot
+        [data]="graph1.data"
+        [layout]="graph1.layout"
+        [useResizeHandler]="true">
+      </plotly-plot>
+
+      <plotly-plot
+        [data]="graph2.data"
+        [layout]="graph2.layout"
+        [useResizeHandler]="true"></plotly-plot>
+
+      <mat-divider></mat-divider>
+
+  </mat-dialog-content>
+
+</div>

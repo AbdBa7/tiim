@@ -1,0 +1,89 @@
+
+<mat-sidenav-container>
+    <mat-sidenav-content>
+      <div layout="column" fxLayout.xs="row"  class="example1" fxHide.lt-lg>
+
+        <!--  Div expansion  -->
+          <div class="mt-3"fxLayoutAlign="center" fxFlex="50">
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Filtre de donneés:
+                </mat-panel-title>
+                <mat-panel-description>
+                  Développement des systèmes de contrôle de la qualité.
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <p>
+                Le filtrage des données est le processus qui consiste à choisir une partie réduite 
+                de votre ensemble de données et à utiliser ce sous-ensemble pour le visualiser ou 
+                l'analyser.
+              </p>
+              <mat-chip-list class="ml-1 mt-1" aria-label="Fish selection">
+                <mat-chip (click)="getAbout()" class="my-chip">Dashbord +</mat-chip>
+                <mat-chip>Analyse de données</mat-chip>
+                <mat-chip>Machine learning</mat-chip>
+              </mat-chip-list>
+            </mat-expansion-panel>
+          </div>
+
+          <div class="mt-3"fxLayoutAlign="center" fxFlex="50">
+            <mat-form-field>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput type="search" placeholder="search here" class="search-input">
+          </mat-form-field>
+            {{searchText}}
+          </div>
+
+
+      </div>
+
+  
+      <div layout="row" class="container" >
+        <div fxLayoutGap="10px" fxLayout.xs="column" fxLayoutAlign="stretch" fxFlex="100" >
+
+            <div class="example2 mt-3">
+              <div *ngIf="data!= undefined">
+                <lib-ngx-vertical-timeline [items]="items"></lib-ngx-vertical-timeline>
+              </div>
+              <div *ngIf="data==undefined">  <i class="fa fa-spinner fa-spin fa-lg"></i></div>
+            </div>
+        </div>
+  
+        <div fxLayoutGap="10px" fxLayout.xs="column" fxLayoutAlign="stretch" fxFlex="30"> 
+          <div class="example2 mt-3 ml-1">
+            <h3 class="mt-1"fxLayoutAlign="left">Articles les + récents/ Calendrier</h3>
+            <mat-divider></mat-divider>
+
+            <mat-card class="example-card mt-3 mb-3">
+              <mat-card-title>Oct-Dec</mat-card-title>
+              <mat-card-subtitle>1-31</mat-card-subtitle>
+              <mat-card-content>
+                <p>Un circuit de commande de potentiel qui comporte.......</p>
+                <p>Business</p>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button>Follow</button>
+              </mat-card-actions>
+            </mat-card>
+
+            <mat-card class="example-card">
+              <mat-card-title>Jav-Avril</mat-card-title>
+              <mat-card-subtitle>1-31</mat-card-subtitle>
+              <mat-card-content>
+                <p>Autres commandes potentiels.</p>
+                <p>Business</p>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button>Follow</button>
+              </mat-card-actions>
+            </mat-card>
+  
+  
+            <mat-slide-toggle class="mt-3">Slide me!</mat-slide-toggle>
+          </div>
+        </div>
+    </div>
+  
+    </mat-sidenav-content>
+  </mat-sidenav-container>

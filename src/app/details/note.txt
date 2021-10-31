@@ -1,0 +1,148 @@
+
+<mat-sidenav-container>
+  <mat-sidenav-content>
+    <div fxLayoutAlign="center" layout="row" fxLayout.xs="row" fxHide.lt-lg>
+
+      <div fxFlex="90" fxLayout.xs="row" >
+        <h1 class="mt-3">Fiche de Production:</h1>
+        <hr>
+        
+          <div layout="row"  >
+            <div fxFlex="100" >
+              <table class="ml-3 col-lg-6">
+                <thead>
+                  <tr>
+                    <th>Matières nécessaires</th>
+                    <th>Nombre/Quantité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>PVC Resine</td>
+                    <td>{{ data.pvc_resine }}</td>
+                  </tr>
+                  <tr>
+                    <td>Calcium jorcal</td>
+                    <td>{{ data.calcium_jorcal }}</td>
+                  </tr>
+                  <tr>
+                    <td>Tio2</td>
+                    <td>{{ data.tio2 }}</td>
+                  </tr>
+                  <tr>
+                    <td>Wax flakes</td>
+                    <td>{{ data.wax_flakes }}</td>
+                  </tr>
+                  <tr>
+                    <td>Steric acid</td>
+                    <td>{{ data.steric_acid }}</td>
+                  </tr>
+                  <tr>
+                    <td>Carbon black</td>
+                    <td>{{ data.carbon_black }}</td>
+                  </tr>
+                  <tr>
+                    <td>Blue pigment</td>
+                    <td>{{ data.blue_pigment }}</td>
+                  </tr>
+                  <tr>
+                    <td>Matière recyclée</td>
+                    <td>{{ data.matiere_recyclee }}</td>
+                  </tr>
+                  <tr>
+                    <th>Total des matières (kg)</th>
+                    <th>{{ data.total_des_matieres }}</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div fxFlex="33">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Déchets</th>
+                    <th>Nombre/Quantité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Stabilizer S-AZ</td>
+                    <td>{{ data.stabilizer_s_az }}</td>
+                  </tr>
+                  <tr>
+                    <td>Quantité tuyau prévue</td>
+                    <td>{{ data.quantite_tuyau_prevue }}</td>
+                  </tr>
+                  <tr>
+                    <td>Quantité tuyau fabriquée</td>
+                    <td>{{ data.quantit_tuyau_fabriquee }}</td>
+                  </tr>
+                  <tr>
+                    <td>Quantité tuyau supplementaire</td>
+                    <td>{{ data.quantite_tuyau_supplementaire }}</td>
+                  </tr>
+                  <tr>
+                    <td>Déchets récuperables</td>
+                    <td>{{ data.dechets_recuperables }}</td>
+                  </tr>
+                  <tr>
+                    <td>Déchets non récuperables</td>
+                    <td>{{ data.dechet_non_recuperable }}</td>
+                  </tr>
+                  <tr>
+                    <th>Déchets totaux</th>
+                    <th>{{ data.dechets_totaux }}</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+            
+
+
+            <div fxFlex="50">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Groupe N°</th>
+                    <th>{{ data.groupe_numero }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Consommation en gasoil (Litres)</td>
+                    <td>{{ data.consommation_en_gasoil }}</td>
+                  </tr>
+                  <tr>
+                    <td>Heures de démarrage</td>
+                    <td>{{ data.heures_de_demarrage }}</td>
+                  </tr>
+                  <tr>
+                    <td>Heures d'arrêt</td>
+                    <td>{{ data.heures_arret }}</td>
+                  </tr>
+                  <tr>
+                    <td>Quantité de résèrve gasoil (Litres)</td>
+                    <td>{{ data.quantite_de_reserve_gasoil }}</td>
+                  </tr>
+                  <tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+    </div>
+</mat-sidenav-content>
+</mat-sidenav-container>
+
+    
+    
+    <!--
+    // For children components:
+    <router-outlet></router-outlet>
+    -->
+      
+      
+

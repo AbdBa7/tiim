@@ -1,0 +1,556 @@
+import random
+import string
+from flask import flash, redirect, url_for, render_template
+from flask_login import login_required, login_user, logout_user, current_user
+from sqlalchemy import and_
+
+from bll.unit_of_work import UnitOfWork
+from flask import Blueprint, request
+from models.user import User, set_password, check_password
+from flask_mail import Message, Mail
+
+user_route = Blueprint('user_route', __name__, static_folder='static', template_folder='templates')
+
+
+@user_route.route('/register', methods=['GET', 'POST'])
+def register():
+    """
+    Handle requests to the /register route
+    Add an user to the database through the registration form
+    """
+    name = request.args.get('name') if request.args.get('name') else None
+    last_name = request.args.get('last_name') if request.args.get('last_name') else None
+    email = request.args.get('email') if request.args.get('email') else None
+    password = request.args.get('password') if request.args.get('password') else None
+    confirm_password = request.args.get('confirm_password') if request.args.get('confirm_password') else None
+
+    with UnitOfWork() as unit_of_work:
+        predicat = and_(User.email == email)
+        query = unit_of_work.user_business_component.get(predicat=predicat)
+    if query:
+        msg = 'Votre compte existe déjà, Veuillez associer un email different pour votre nouveau compte'
+        # load registration template
+        return render_template('auth/register.html', msg=msg)
+
+    elif password != confirm_password:
+        msg = 'Les mots de passe devraient être le même'
+        # load registration template
+        return render_template('auth/register.html', msg=msg)
+
+    elif name and last_name and email and password:
+        dico = {
+            'name': name,
+            'last_name': last_name,
+            'email': email,
+            'created_on': None,
+            'last_login': None,
+            'is_confirmed': '0',
+            'is_anonymous': False,
+            'password': set_password(password),
+            'code': '0&AAAn'
+        }
+
+        # add user to the database
+        with UnitOfWork() as unit_of_work:
+            unit_of_work.user_business_component.add(dico)
+
+        flash('You have successfully registered! You may now login.')
+
+        # redirect to the login page
+        return redirect(url_for('user_route.login'))
+    else:
+        # load registration template
+        return render_template('auth/register.html', msg=None)
+
+@user_route.route('/reset_pwd', methods=['GET', 'POST'])
+@login_required
+def reset_pwd():
+    """
+    Handle requests to the /reset route: reset user pwd to the database
+    """
+    email = current_user.email
+    password = request.args.get('password') if request.args.get('password') else None
+    confirm_pwd = request.args.get('confirm_pwd') if request.args.get('confirm_pwd') else None
+    with UnitOfWork() as unit_of_work:
+        predicat = and_(User.email == email)
+        query = unit_of_work.user_business_component.get(predicat=predicat)
+
+    if query and password==confirm_pwd and current_user.is_authenticated:
+        query['code'] = "AAA"
+        query['password'] = set_password(password)
+        unit_of_work.user_business_component.updates([query])
+        return render_template('auth/login.html', msg='Connectez-vous à nouveau avec votre nouveau mot de passe')
+
+    else:
+        msg = 'Aucun compte n\'est associé à cet email'
+        # load registration template
+        return render_template('auth/reset.html', msg=msg)
+
+@user_route.route('/forget_pwd', methods=['GET', 'POST'])
+def forget_pwd():
+    """
+    Handle requests to the /reset route
+    Set an email with generated user pwd to the database
+    """
+    temp_pwd = random_string()
+    email = request.args.get('email') if request.args.get('email') else None
+    with UnitOfWork() as unit_of_work:
+        predicat = and_(User.email == email)
+        query = unit_of_work.user_business_component.get(predicat=predicat)
+    if query:
+        query['code'] = set_password(temp_pwd)
+        unit_of_work.user_business_component.updates([query])
+
+        msg = Message("Le bon carrefour: votre nouveau mot passe",
+                      sender="leboncarrefour@gmail.com",
+                      recipients=[email]
+        )
+        msg.body = """
+        Cher {},
+
+        Ci-dessous votre nouveau mot de passe pour accéder au site www.leboncarrefour.com :
+
+        {}
+
+        N'oublier pas de réinitialiser votre mot de passe depuis votre espace personnel, une fois connecté.
+        """.format(query['name'], temp_pwd)
+
+        Mail().send(msg)
+        return render_template('auth/login.html', msg='Utilisé le mot de passe que vous avez reçu par email.')
+
+    else:
+        msg = 'Aucun compte n\'est associé à cet email'
+        # load registration template
+        return render_template('auth/forget.html', msg=msg)
+
+@user_route.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Handle requests to the /login route
+    Log an user in through the login form
+    """
+    email = request.values.get('email') if request else None
+    password = request.values.get('password') if request else None
+    code = request.values.get('code') if request else None
+    if email:
+        # check whether employee exists in the database and whether
+        # the password entered matches the password in the database
+        with UnitOfWork() as unit_of_work:
+            predicat = and_(User.email == email)
+            query = unit_of_work.user_business_component.get(predicat=predicat)
+
+        if query:
+            if query['is_confirmed'] != '1':
+                msg = "Veuillez activer votre compte depuis le mail de confirmation qui vous a été envoyé."
+                return render_template('auth/login.html', msg=msg, mail_valid="msg")
+            # log user in
+            user = User()
+            user.name = query['name']
+            user.email = query['email']
+            user.password = query['password']
+
+
+            if check_password(query["password"], password):
+                login_user(user, remember=True)
+                # redirect to the dashboard page after login
+                if code:
+                    return redirect(url_for('isouk.get_espace'))
+                else:
+                    return redirect(url_for('isouk_add_form'))
+
+            elif check_password(query["code"], password):
+                login_user(user, remember=True)
+                # redirect to the dashboard page after login
+                if code:
+                    return redirect(url_for('isouk.get_espace'))
+                else:
+                    return redirect(url_for('isouk_add_form'))
+            return render_template('auth/login.html', msg='Email ou mot de passe invalide')
+
+        else:
+            return render_template('auth/login.html', msg='Email ou mot de passe invalide')
+
+    # load login template
+    if code:
+        return render_template('auth/login.html', msg='', code=code)
+    return render_template('auth/login.html', )
+
+
+@user_route.route('/logout')
+@login_required
+def logout():
+    """
+    Handle requests to the /logout route
+    Log an employee out through the logout link
+    """
+    logout_user()
+
+    flash('You have successfully been logged out.')
+
+    # redirect to the login page
+    return redirect(url_for('user_route.login'))
+
+
+def random_string(n=10):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    for i in ['&', '-', '_']:
+        letters += i
+    var = ''.join(random.choice(letters) for i in range(n))
+    res = 'A_'+ var
+    return res
+
+
+##########
+# Main   #
+##########
+
+import random
+import string
+import jwt
+from datetime import timedelta
+
+from itsdangerous import URLSafeTimedSerializer
+from sqlalchemy import text, and_
+from flask_login import LoginManager, current_user, login_required
+from flask import render_template, session, redirect, url_for, escape, request, flash, Flask
+
+from auth.user import user_route
+from app import create_app
+from flask_mail import Message, Mail
+
+from bll.unit_of_work import UnitOfWork
+from models import User, Anonymous
+from routes import isouk
+
+from flask_cors import CORS
+
+app = create_app()
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.anonymous_user = Anonymous
+
+# cors
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+# Access-Control-Allow-Origin: http://example.com/
+
+
+# setup Mail
+mail = Mail(app)
+
+"""
+app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
+app.config['SQLALCHEMY_POOL_TIMEOUT'] = 499
+login_manager.refresh_view = "accounts.reauthenticate"
+login_manager.needs_refresh_message = (
+    u"To protect your account, please reauthenticate to access this page."
+)
+"""
+login_manager.refresh_view = "accounts.reauthenticate"
+login_serializer = URLSafeTimedSerializer(app.secret_key)
+
+@login_manager.user_loader
+def user_loader(user_id):
+    """Given *user_id*, return the associated User object.
+
+    :param unicode user_id: user_id (email) user to retrieve
+    """
+    with UnitOfWork() as unit_of_work:
+        predicat = and_(User.email == user_id)
+        query = unit_of_work.user_business_component.get(predicat=predicat)
+        user = User()
+        user.name = query['name']
+        user.last_name = query['last_name']
+        user.email = query['email']
+    return user
+
+
+# By defaults it is GET
+@app.route("/")
+def index():
+    # @login_required
+    # if not current_user.is_authenticated:
+    #    return render_template('auth/login.html', code=1)
+
+    return render_template('iSouk/souk.html')
+
+@app.route("/contact")
+def contact():
+    return render_template('nous_ecrire/contact.html')
+
+@app.route("/forget")
+def forget():
+    return render_template('auth/forget.html')
+
+@app.route("/reset")
+def reset():
+    return render_template('auth/reset.html')
+
+@app.route("/mail_validation_form")
+def mail_validation_form():
+    return render_template('auth/mail_validation.html')
+
+@app.route("/test/")
+def test():
+    return render_template('test.html')
+
+@login_required
+@app.route("/register/mail_validation")
+def mail_validation():
+    email = request.args.get('email')
+    with UnitOfWork() as unit_of_work:
+        predicat = and_(User.email == email)
+        user = unit_of_work.user_business_component.get(predicat=predicat)
+
+        if user:
+            if user['is_confirmed'] == '0':
+                msg = Message("Veuillez confirmer votre email",
+                        sender="leboncarrefour@gmail.com",
+                        recipients=[email]
+                )
+                token = generate_confirmation_token(email)
+                confirm_url = url_for('__confirm_email', token=token, _external=True)
+                msg.html = render_template('auth/confirm.html', name= user['name'], confirm_url=confirm_url)
+
+                Mail().send(msg)
+                return render_template('iSouk/article_added.html', msg="Le nouveau code vient d'être envoyé avec succès")
+            else:
+                msg = "Votre compte est déjà activé."
+                # load registration template
+                return render_template('iSouk/article_added.html', msg=msg)
+        return render_template('iSouk/article_added.html', msg="Désolé, requête non exécutée : aucune boîte e-mail ici à ce nom ")
+
+"""
+@app.route("/", methods=["GET"])
+def home():
+    if current_user.is_authenticated:
+        if current_user.is_admin():
+            return render_template('admin_index.html')
+        return render_template('user_index.html')
+    logger.info("Not authenticated. Going back to login.")
+    return render_template('login.html')
+
+"""
+
+##########
+# isouk
+@app.route("/iSouk/")
+def iSouk():
+    # if not current_user.is_authenticated:
+    #    return render_template('auth/login.html', code=1)
+    return render_template("iSouk/souk.html")
+
+
+@app.route("/iSouk_detail/")
+def iSouk_detail():
+    if not current_user.is_authenticated:
+        return render_template('auth/login.html', code=1)
+
+    return render_template("iSouk/detail.html")
+
+@app.route("/update_form/")
+@login_required
+def update_form():
+    detail = request.args.get('detail') if request.args.get('detail') else None
+    with UnitOfWork() as unit_of_work:
+        predicat = text(f'id={detail}')
+        content = unit_of_work.isouk_business_component.get(predicat=predicat)
+
+    return render_template('/iSouk/update_form.html', content=content)
+
+@app.route("/iSouk_add_form/")
+@login_required
+def isouk_add_form():
+    return render_template("iSouk/add_isouk.html")
+"""
+@app.route("/souk_list/")
+def souk_list():
+    if not current_user.is_authenticated:
+        return render_template('auth/login.html', code=1)
+
+    return render_template("iSouk/souk_list.html")
+"""
+@app.route("/personal_space/")
+def go_to_espace():
+    if current_user.is_authenticated:
+        # if current_user.is_admin():
+        #    return render_template('admin_index.html')
+        return redirect(url_for('isouk.get_espace'))
+    return render_template('auth/login.html', code=1)
+
+@app.route("/Company/chagra/")
+def chagra():
+    return render_template("Company/chagra.html")
+
+@app.route("/Company/ePharma/")
+def ePharma():
+    return render_template("Company/pharma.html")
+
+@app.route("/modal/tvt/")
+def modal_tvt():
+    return render_template("modal/tvt.html", show_predictions_modal=True)
+#########################################################################
+# Votre_document CGU
+@app.route("/doc_cgu/")
+def doc_cgu():
+    return render_template("doc_cgu.html")
+
+from flask import send_file
+
+@app.route('/doc_cgu_show_2/')
+def show_static_pdf_2():
+    with open('/home/iSouk/mysite/templates/Votre_document.pdf', 'rb') as static_file:
+        return send_file(static_file, attachment_filename='Votre_document.pdf')
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    """Redirect unauthorized users to Login page."""
+    flash('You must be logged in to view that page.')
+    return redirect(url_for('user_route.login'))
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return "page not found"
+
+@app.errorhandler(500)
+def internal_error(error):
+    msg = 'Oups, une erreur inattendue s\'est produite.'
+    return render_template('iSouk/article_added.html', msg=msg)
+
+# routes register_blueprint
+app.register_blueprint(user_route)
+app.register_blueprint(isouk)
+
+
+#
+def generate_confirmation_token(email):
+    serializer = login_serializer
+    return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+
+def confirm_token(token, expiration=3600):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(
+            token,
+            salt=app.config['SECURITY_PASSWORD_SALT'],
+            max_age=expiration
+        )
+    except:
+        return False
+    return email
+
+@app.route('/confirm/<token>')
+def __confirm_email(token):
+        email = confirm_token(token)
+        if email and '@' in str(email):
+            with UnitOfWork() as unit_of_work:
+                predicat = and_(User.email == email)
+                user = unit_of_work.user_business_component.get(predicat=predicat)
+
+            if user['is_confirmed']=='1':
+                    return render_template('/iSouk/article_added.html', msg='Compte déjà confirmé. Veuillez vous connecter.')
+            else:
+                with UnitOfWork() as unit_of_work:
+                    user['is_confirmed']='1'
+                    unit_of_work.user_business_component.updates([user])
+
+            return render_template('/iSouk/article_added.html', msg='Vous venez de confirmer le compte suivant: {0} !'.format(user['email']))
+        return render_template('/iSouk/article_added.html', msg='Le lien de confirmation n\'est pas valide ou a expiré.')
+
+def __msg_send():
+    title = request.args.get('title')
+    email = request.args.get('email')
+    description = request.args.get('description') if request.args.get('description') else None
+
+    if title and email and description:
+        msg = Message(title,
+                      sender="leboncarrefour@gmail.com",
+                      recipients=[email, "leboncarrefour@gmail.com"]
+        )
+        msg.body = description
+
+        Mail().send(msg)
+        return render_template('iSouk/article_added.html', msg="Message envoyé avec succès")
+    return render_template('nous_ecrire/contact.html')
+
+@app.before_first_request
+def first_check():
+    pass
+
+@app.before_request
+def before_request_func():
+    if not current_user.is_authenticated and current_user.is_anonymous:
+        ip_address = str(request.remote_addr)
+        ip =  request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+        current_user.tmp_val = ip
+
+    session.permanent = False
+    app.permanent_session_lifetime = timedelta(minutes=5)
+    session.modified = True
+
+    msg=""
+    if "register"  in request.url:
+        name = request.args.get('name') if request.args.get('name') else None
+        email = request.args.get('email') if request.args.get('email') else None
+
+        print(f"\n register vals: {name}, {email} \n")
+
+        if email and name:
+            with UnitOfWork() as unit_of_work:
+                predicat = and_(User.email == email)
+                query = unit_of_work.user_business_component.get(predicat=predicat)
+
+                if query:
+                    if query["is_confirmed"] == 1:
+                        msg = 'Votre compte existe déjà, Veuillez associer un email different pour votre nouveau compte'
+                        # load registration template
+                        return render_template('auth/register.html', msg=msg)
+
+                else:
+                    msg = Message("Veuillez confirmer votre email",
+                                sender="leboncarrefour@gmail.com",
+                                recipients=[email]
+                    )
+                    token = generate_confirmation_token(email)
+                    confirm_url = url_for('__confirm_email', token=token, _external=True)
+                    msg.html = render_template('auth/confirm.html', name= name, confirm_url=confirm_url)
+
+                    Mail().send(msg)
+
+        else:
+            msg2 = '''Une erreur est survenue lors de l'inscription. Pour régler ce problème, il vous faudra envoyer un mail support pour resoudre votre problème.'''
+            # load registration template
+
+            return render_template('auth/register.html', msg=msg)
+
+
+def random_string(n=10):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    for i in ['&', '-', '_']:
+        letters += i
+    var = ''.join(random.choice(letters) for i in range(n))
+    res = 'a'+ var
+    return res
+
+
+"""
+request.method:              GET
+request.url:                 http://127.0.0.1:5000/alert/dingding/test?x=y
+request.base_url:            http://127.0.0.1:5000/alert/dingding/test
+request.url_charset:         utf-8
+request.url_root:            http://127.0.0.1:5000/
+str(request.url_rule):       /alert/dingding/test
+request.host_url:            http://127.0.0.1:5000/
+request.host:                127.0.0.1:5000
+request.script_root:
+request.path:                /alert/dingding/test
+request.full_path:           /alert/dingding/test?x=y
+
+request.args:                ImmutableMultiDict([('x', 'y')])
+request.args.get('x'):       y
+"""
+

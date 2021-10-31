@@ -1,0 +1,29 @@
+
+<mat-sidenav-container style="margin-top: -20em; background-color: white !important;">
+  <mat-sidenav-content>
+    <div layout="column" fxLayout.xs="row" fxLayoutAlign="stretch" class="mb-3">
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-1">
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-10 example1">
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <span fxLayoutAlign="center" class="material-icons mb-3 mt-3" style="font-size: 56px;">lock </span>
+
+            <mat-form-field>
+              <input matInput type="text" id="username" placeholder="email" autocomplete="off" formControlName="username" required>
+            </mat-form-field>
+          
+            <mat-form-field>
+              <input matInput type="password" id="password" placeholder="mot de passe" formControlName="password" required>
+            </mat-form-field>
+          
+            <div class="actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">LOG IN</button>
+            </div>
+          </form>
+          <div class="mt-3" ng-if="!message">
+            {{ message }}
+          </div>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

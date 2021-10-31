@@ -1,0 +1,212 @@
+<mat-sidenav-container>
+    <mat-sidenav-content>
+        <div layout="column" fxLayoutAlign="center" fxLayout.xs="row"  class="mt-3" fxHide.lt-lg>
+            <h1>Fiche de production</h1>
+        </div>
+        <form [formGroup]="tiimDataForm" (ngSubmit)="addItem()">
+        <div class="form-group example-container">
+            
+            <!--Matière nécessaire-->
+            <div layout="column" fxLayout.xs="row"  class="mt-3" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <h2 fxLayoutAlign="left">Observations</h2>
+            </div>
+            <div layout="column" fxLayout.xs="row"  class="#" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div class="mt-3" fxLayoutAlign="left" fxFlex="33">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Observations</mat-label>
+                        <input required formControlName="observations" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" floatLabel="always">
+                        <mat-label>Coût total (FCFA)</mat-label>
+                        <input matInput type="number" class="example-right-align" placeholder="0">
+                        <span matPrefix></span>
+                        <span matSuffix>.00</span>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!--Matière nécessaire-->
+            <div layout="column" fxLayout.xs="row"  class="mt-3" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <h2 fxLayoutAlign="left">Matière nécessaire</h2>
+            </div>
+
+            <div layout="column" fxLayout.xs="row"  class="#" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div class="mt-3" fxLayoutAlign="left" fxFlex="33">
+                    <mat-form-field appearance="fill">
+                        <mat-label>pvc resine</mat-label>
+                        <input required formControlName="pvc_resine" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>calcium jorcal</mat-label>
+                        <input formControlName="calcium_jorcal" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>tio2</mat-label>
+                        <input formControlName="tio2" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>wax flakes</mat-label>
+                        <input formControlName="wax_flakes" matInput>
+                    </mat-form-field>
+                </div>
+            </div>
+
+
+            <div layout="column" fxLayout.xs="row example2"  class="#" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div class="mt-3"fxLayoutAlign="left" fxFlex="33">
+                    <mat-form-field appearance="fill">
+                        <mat-label>steric acid</mat-label>
+                        <input formControlName="steric_acid" matInput>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>carbon black</mat-label>
+                        <input formControlName="carbon_black" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>blue pigment</mat-label>
+                        <input formControlName="blue_pigment" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>Matière recyclée</mat-label>
+                        <input formControlName="matiere_recyclee" matInput>
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="fill">
+                        <mat-label>Stabilizer S AZ</mat-label>
+                        <input formControlName="stabilizer_s_az" matInput>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!--Totale de la matière en [kg]-->
+            <div layout="column" fxLayout.xs="row"  class="mt-3" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <h2 fxLayoutAlign="left">Totale de la matière en [kg]</h2>
+            </div>
+            <div layout="column" fxLayout.xs="row"  class="#" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div class="mt-3" fxLayoutAlign="left" fxFlex="33">
+                    <mat-form-field appearance="fill">
+                        <mat-label>quantité tuyau prevue</mat-label>
+                        <input formControlName="quantite_tuyau_prevue" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>quantité tuyau fabriquée</mat-label>
+                        <input formControlName="quantit_tuyau_fabriquee" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>quantité tuyau supplementaire</mat-label>
+                        <input formControlName="quantite_tuyau_supplementaire" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>déchets récupérables</mat-label>
+                        <input formControlName="dechets_recuperables" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>déchets non récupérables</mat-label>
+                        <input formControlName="dechet_non_recuperable" matInput>
+                    </mat-form-field>
+
+                    
+                </div>
+            </div>
+
+            <!--Déchets totaux-->
+            <div layout="column" fxLayout.xs="row"  class="mt-3" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div layout="row" fxFlex="20"><h2 fxLayoutAlign="left">Déchets totaux</h2> </div>
+            </div>
+
+            <div layout="column" fxLayout.xs="row"  class="#" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div class="mt-3" fxLayoutAlign="left" fxFlex="33">
+                    <mat-form-field appearance="fill">
+                        <mat-label>personnel temporaire</mat-label>
+                        <input formControlName="personnel_temporaire" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>date et heure debut</mat-label>
+                        <input matInput [matDatepicker]="picker2" formControlName="date_et_heure_debut">
+                        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                        <mat-datepicker #picker2 color="primary"></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>date et heure completée</mat-label>
+                        <input matInput [matDatepicker]="picker3" formControlName="date_et_heure_completee">
+                        <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                        <mat-datepicker #picker3 color="primary"></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>date de livraison de la commande</mat-label>
+                        <input matInput [matDatepicker]="picker4" formControlName="date_de_livraison_de_la_commande">
+                        <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+                        <mat-datepicker #picker4 color="primary"></mat-datepicker>
+                        
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>heures supplementaires</mat-label>
+                        <input formControlName="heures_supplementaires" matInput>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!--Groupes-->
+            <div layout="column" fxLayout.xs="row"  class="mt-3" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <h2 fxLayoutAlign="left">Groupes</h2>
+            </div>
+            <div layout="column" fxLayout.xs="row"  class="#" fxHide.lt-lg>
+                <div class="mt-3" fxFlex="10"></div>
+                <div class="mt-3" fxLayoutAlign="left" fxFlex="77">
+                    <mat-form-field appearance="fill">
+                        <mat-label>groupe_numero</mat-label>
+                        <input formControlName="groupe_numero" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>consommation en gasoil [Litres]</mat-label>
+                        <input formControlName="consommation_en_gasoil" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>heures_de_demarrage</mat-label>
+                        <input formControlName="heures_de_demarrage" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>heures d'arrêt</mat-label>
+                        <input formControlName="heures_arret" matInput>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>quantité de réserve gasoil [Litres]</mat-label>
+                        <input formControlName="quantite_de_reserve_gasoil" matInput>
+                    </mat-form-field>
+                </div>
+                <div class="mt-2 mb-3" fxLayoutAlign="left" fxFlex="10">
+                    <button (click)="addItem()" class="mt-3" mat-raised-button color="primary" style="height : 3em!important;">Validé</button>
+                </div>
+            </div>
+
+        </div></form>
+    </mat-sidenav-content>
+</mat-sidenav-container>

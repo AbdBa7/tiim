@@ -1,0 +1,162 @@
+import { Component, OnInit, ViewChildren } from '@angular/core';
+import { DateAdapter, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
+import {  MatChipList } from '@angular/material/chips';
+import {  MatCheckbox } from '@angular/material/checkbox';
+import { ActivatedRoute } from '@angular/router';
+
+// import { default as _rollupMoment } from 'moment';
+// import * as _moment from 'moment';
+// import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { FormControl } from '@angular/forms';
+import { CommonService } from '../service/service-common';
+
+
+/**
+ * Moment package for date management
+ */
+
+// const moment = _rollupMoment || _moment;
+
+/**
+ * Initilialize calendar in the filter
+ */
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'LL',
+  },
+  display: {
+    dateInput: 'LL',
+    monthYearLabel: 'MMM YYYY',
+    dateAllyLabel: 'LL',
+    monthYearAllyLabel: 'MMMM YYYY',
+  },
+};
+
+@Component({
+  selector: 'app-details',
+  templateUrl: './details.component.html',
+  providers: [
+    // { provide: DateAdapter, userClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    // { provide: DateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+  ],
+})
+export class DetailsComponent implements OnInit {
+
+  /**
+   * Get all tags chips in filter
+   */
+  @ViewChildren(MatChipList) flagList: any;
+
+  /**
+   * Get all tags checkbox in filter
+   */
+  @ViewChildren(MatCheckbox) cbList: any;
+
+  id: any;
+  data: any;
+  private sub: any;
+
+  /**
+   *
+   * @param CommonService Constructor
+   */
+   constructor(
+    private common_service: CommonService,
+    private route: ActivatedRoute,
+    ) { }
+  
+    /**
+     * Initialisation of the news loading
+     */
+    ngOnInit() {
+      this.sub = this.route.params.subscribe(params => {
+        this.data = history.state.data;
+      });
+    }
+
+  /**
+   * Free text filter
+   */
+  filter= "";
+  status_list = ['Pending', 'Ongoing', 'Closed']
+
+  sort_like_list = ['Increasing', 'Decreasing', 'Cancel']
+  sort_user_list = ['Alphabetical order', 'Reverse alphabetical', 'Cancel']
+  sort_date_list = ['Newest', 'Oldest', 'Cancel']
+
+
+  likes = {'1': 'Increasing', '2': 'Decreasing', '3': 'Cancel'}
+  users = {'1': 'Alphabetical order', '2': 'Reverse alphabetical', '3': 'Cancel'}
+  dates = {'1': 'Newest', '2': 'Oldest', '3': 'Cancel'}
+
+
+  like_sort_tmp = 3;
+  user_sort_tmp = 3;
+  date_sort_tmp = 3;
+
+  category_list = ['Bug / Warning/ Error', 'Suggestion / Ideas', 'Results validity', 'Clarification', 'Display', 'Other']
+  category_list_formated = {
+    'Bug / Warning/ Error': '_Fix',
+    'Suggestion / Ideas': '_Feature',
+    'Results validity': '_Validity',
+    'Clarification': '_Clarification',
+    'Display': '_Cosmetic',
+    'Other': '_Other'
+  }
+  selected_like_sort = '';
+  selected_user_sort = '';
+  selected_date_sort = '';
+  selectedCategory = []
+  selectedTags = []
+  selectedStatus = []
+
+  /**
+   * All feedback from database
+   */
+  feedack: any;
+
+  /**
+   * Current loged in user
+   */
+  CurrentUser: any;
+
+  /**
+   * List of news grouped by date
+   */
+  dateGroupBy = {};
+
+  /**
+   * All feedback from database
+   */
+  Liked: any;
+
+  /**
+   * List of label of typ compute module
+   */
+  cms =[];
+
+  /**
+   * List of compute modules
+   */
+  cm = [];
+
+  /**
+   * All labels from database
+   */
+  labels = [];
+
+  /**
+   * List of label of type tags
+   */
+   tags = [];
+
+   /**
+   * List of label of type other
+   */
+  entities = [];
+
+  loading = true;
+
+}
+
